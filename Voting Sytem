@@ -1,0 +1,122 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace VotingSystem
+{
+    public class User
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public bool IsAdmin { get; set; }
+    }
+
+    public class Candidate
+    {
+        public string Name { get; set; }
+        public string Party { get; set; }
+        public int Votes { get; set; }
+    }
+
+    public class Vote
+    {
+        public User Voter { get; set; }
+        public Candidate Candidate { get; set; }
+    }
+
+    public class VotingSystem
+    {
+        private List<User> users = new List<User>();
+        private List<Candidate> candidates = new List<Candidate>();
+        private List<Vote> votes = new List<Vote>();
+
+        public void RegisterUser(string name, string email, string password)
+        {
+            var user = new User
+            {
+                Name = name,
+                Email = email,
+                Password = password,
+                IsAdmin = false
+            };
+
+            users.Add(user);
+        }
+
+        public void RegisterCandidate(string name, string party)
+        {
+            var candidate = new Candidate
+            {
+                Name = name,
+                Party = party,
+                Votes = 0
+            };
+
+            candidates.Add(candidate);
+        }
+
+        public void CastVote(User user, Candidate candidate)
+        {
+            if (user == null || candidate == null)
+            {
+                throw new ArgumentNullException("User and candidate cannot be null.");
+            }
+
+            var vote = new Vote
+            {
+                Voter = user,
+                Candidate = candidate
+            };
+
+            votes.Add(vote);
+
+            candidate.Votes++;
+        }
+
+        public List<Candidate> GetCandidates()
+        {
+            return candidates;
+        }
+
+        public List<Vote> GetVotes()
+        {
+            return votes;
+        }
+
+        public void DisplayResults()
+        {
+            var sortedCandidates = candidates.OrderByDescending(c => c.Votes);
+
+            Console.WriteLine("Election Results:");
+            Console.WriteLine("==================");
+            foreach (var candidate in sortedCandidates)
+            {
+                Console.WriteLine("{0} ({1}): {2} votes", candidate.Name, candidate.Party, candidate.Votes);
+            }
+            Console.WriteLine("==================");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var votingSystem = new VotingSystem();
+
+            votingSystem.RegisterUser("John Smith", "john.smith@example.com", "password123");
+            votingSystem.RegisterCandidate("Jane Doe", "Democratic Party");
+            votingSystem.RegisterCandidate("John Smith", "Republican Party");
+
+            var user = votingSystem.GetUsers().FirstOrDefault(u => u.Email == "john.smith@example.com");
+
+            var candidate = votingSystem.GetCandidates().FirstOrDefault(c => c.Name == "Jane Doe");
+
+            votingSystem.CastVote(user, candidate);
+
+            votingSystem.DisplayResults();
+
+            Console.ReadLine();
+        }
+    }
+}
